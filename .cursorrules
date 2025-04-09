@@ -1,0 +1,136 @@
+# Cursor Rules for LendingApp
+
+## Project Patterns
+
+### File Structure
+```
+lendingapp/
+├── apps/
+│   ├── web/           # Next.js frontend
+│   └── api/           # Express backend
+├── packages/
+│   ├── shared/        # Shared types and utilities
+│   └── ui/            # Shared UI components
+├── memory-bank/       # Project documentation
+└── docker/            # Docker configurations
+```
+
+### Naming Conventions
+1. Files and Directories
+   - React components: PascalCase
+   - Utilities: camelCase
+   - Constants: UPPER_SNAKE_CASE
+   - Database tables: snake_case
+
+2. Code Style
+   - Use TypeScript for all code
+   - Functional components with hooks
+   - Async/await over promises
+   - Early returns for conditions
+
+### Development Workflow
+1. Feature branches from main
+2. Conventional commits
+3. Pull request reviews
+4. Automated testing
+5. CI/CD pipeline validation
+
+### Code Organization
+1. Component structure:
+   ```typescript
+   // Component.tsx
+   import { type FC } from 'react'
+   import styles from './Component.module.css'
+   
+   interface ComponentProps {
+     // Props interface
+   }
+   
+   export const Component: FC<ComponentProps> = (props) => {
+     // Component logic
+   }
+   ```
+
+2. API structure:
+   ```typescript
+   // route.ts
+   import { type RequestHandler } from 'express'
+   
+   export const handler: RequestHandler = async (req, res) => {
+     // Route logic
+   }
+   ```
+
+### Testing Patterns
+1. Unit tests alongside components
+2. Integration tests in __tests__ directory
+3. E2E tests in cypress directory
+4. Test file naming: *.test.ts(x)
+
+### Documentation
+1. JSDoc for functions and components
+2. README.md in each package
+3. API documentation with OpenAPI
+4. Memory bank updates for major changes
+
+## Project Intelligence
+
+### Critical Paths
+1. User authentication flow
+2. Loan creation process
+3. Payment processing
+4. Data validation
+5. Error handling
+
+### Known Challenges
+1. Complex financial calculations
+2. Real-time updates
+3. Data consistency
+4. Security requirements
+5. Performance optimization
+
+### Tool Usage
+1. Development:
+   - VS Code with ESLint
+   - Prettier for formatting
+   - Husky for git hooks
+   - pnpm for package management
+
+2. Testing:
+   - Jest for unit tests
+   - Cypress for E2E
+   - React Testing Library
+   - Supertest for API
+
+3. Monitoring:
+   - DataDog for metrics
+   - ELK for logging
+   - Sentry for errors
+   - NewRelic for APM
+
+### Evolution Notes
+1. Initial setup: Monorepo structure
+2. Technology choices:
+   - Next.js for frontend
+   - Express for backend
+   - PostgreSQL for database
+   - Redis for caching
+
+### Best Practices
+1. Security:
+   - Input validation
+   - Parameter sanitization
+   - Error message security
+   - Authentication checks
+
+2. Performance:
+   - Query optimization
+   - Caching strategy
+   - Asset optimization
+   - Load balancing
+
+3. Code Quality:
+   - Type safety
+   - Code reviews
+   - Automated testing
+   - Documentation 
