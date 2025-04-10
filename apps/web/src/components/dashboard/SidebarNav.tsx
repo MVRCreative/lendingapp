@@ -15,10 +15,11 @@ import {
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Avatar from '@/components/Avatar'
 import { useUser } from '@/components/UserProvider'
 import { useState, useRef, useEffect } from 'react'
+import { Logo } from '@/components/Logo'
 
 interface SidebarNavProps {
   children: React.ReactNode
@@ -26,18 +27,9 @@ interface SidebarNavProps {
 
 export function SidebarNav({ children }: SidebarNavProps) {
   const pathname = usePathname()
-  const router = useRouter()
-  const { user, profile, signOut, loading } = useUser()
+  const { user, profile, signOut } = useUser()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-
-  // Redirect to login if not authenticated and not already on auth page
-  useEffect(() => {
-    if (!loading && !user && !pathname.includes('/login') && !pathname.includes('/register')) {
-      console.log('SidebarNav: No authenticated user, redirecting to login')
-      router.push('/login')
-    }
-  }, [user, loading, pathname, router])
 
   // Close the user menu when clicking outside
   useEffect(() => {
@@ -51,23 +43,6 @@ export function SidebarNav({ children }: SidebarNavProps) {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
-
-  // Show loading state while checking auth
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // If user is not authenticated and not on an auth page, don't render dashboard
-  if (!user && !pathname.includes('/login') && !pathname.includes('/register')) {
-    return null
-  }
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -85,7 +60,7 @@ export function SidebarNav({ children }: SidebarNavProps) {
       {/* Sidebar */}
       <div className="hidden w-64 flex-col bg-card text-card-foreground border-r border-border md:flex">
         <div className="flex h-16 items-center border-b border-border px-6">
-          <span className="font-semibold text-foreground">LendingApp</span>
+          <Logo className="w-full" height={32} />
         </div>
         <nav className="flex-1 space-y-1 p-4">
           {navigation.map((item) => (

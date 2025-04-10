@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User, Session } from '@supabase/supabase-js'
@@ -35,6 +35,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const isMounted = useRef(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -97,7 +98,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     console.log('Refreshing profile for user:', user.id)
     const profile = await fetchProfile(user.id)
-    if (profile) {
+    if (profile && isMounted.current) {
       setProfile(profile)
       console.log('Profile refreshed successfully')
     } else {
@@ -109,28 +110,38 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     console.log('Signing out')
     await supabase.auth.signOut()
-    setUser(null)
-    setProfile(null)
-    setSession(null)
-    router.push('/login')
-    router.refresh()
+    if (isMounted.current) {
+      setUser(null)
+      setProfile(null)
+      setSession(null)
+      router.push('/login')
+      router.refresh()
+    }
   }
 
   // Initial session and auth state
   useEffect(() => {
+    isMounted.current = true
+    
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth state...')
+        
         // Get the initial session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Session result:', session ? 'Session exists' : 'No session')
+        
+        if (!isMounted.current) return
+        
         setSession(session)
         
         if (session?.user) {
           console.log('User found in session:', session.user.id)
           setUser(session.user)
           const profile = await fetchProfile(session.user.id)
-          setProfile(profile)
+          if (isMounted.current) {
+            setProfile(profile)
+          }
         } else {
           console.log('No user in session')
         }
@@ -139,13 +150,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const { data: { subscription } } = await supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log('Auth state changed. Event:', event, 'Session:', session ? 'exists' : 'null')
+            
+            if (!isMounted.current) return
+            
             setSession(session)
             setUser(session?.user || null)
             
             if (session?.user) {
               console.log('Auth change: fetching profile for user', session.user.id)
               const profile = await fetchProfile(session.user.id)
-              setProfile(profile)
+              if (isMounted.current) {
+                setProfile(profile)
+              }
             } else {
               console.log('Auth change: no user, clearing profile')
               setProfile(null)
@@ -161,11 +177,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Error setting up auth:', error)
       } finally {
-        setLoading(false)
+        if (isMounted.current) {
+          console.log('Auth initialization complete, setting loading to false')
+          setLoading(false)
+        }
       }
     }
 
     initializeAuth()
+
+    // Cleanup function
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   return (
