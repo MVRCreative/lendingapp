@@ -182,4 +182,52 @@ export interface Database {
       [_ in never]: never
     }
   }
-} 
+}
+
+// User profile
+export type UserProfile = {
+  id: string;
+  full_name: string;
+  avatar_url: string | null;
+  email: string;
+};
+
+// Communications Types
+export type Conversation = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  title: string | null;
+  is_group: boolean;
+  participants?: ConversationParticipant[];
+  last_message?: Message;
+};
+
+export type ConversationParticipant = {
+  conversation_id: string;
+  user_id: string;
+  joined_at: string;
+  last_read_message_id: string | null;
+  user?: UserProfile;
+};
+
+export type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  has_attachments: boolean;
+  sender?: UserProfile;
+  attachments?: MessageAttachment[];
+};
+
+export type MessageAttachment = {
+  id: string;
+  message_id: string;
+  file_path: string;
+  file_name: string;
+  file_size: number;
+  file_type: string;
+  created_at: string;
+}; 

@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Bell, Lock, User, Mail, Building } from 'lucide-react'
-import AvatarUploader from '@/components/AvatarUploader'
+import DropzoneAvatar from '@/components/DropzoneAvatar'
 import { useUser } from '@/components/UserProvider'
 import Link from 'next/link'
 
@@ -117,7 +117,7 @@ export default function SettingsPage() {
 
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-1/3 flex justify-center">
-              <AvatarUploader 
+              <DropzoneAvatar 
                 userId={user.id} 
                 url={profile?.avatar_url} 
                 onUploadComplete={handleAvatarUpdate} 

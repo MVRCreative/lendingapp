@@ -1,86 +1,84 @@
-import { PageHeader } from '@/components/shared/PageHeader'
+'use client'
+
+import { useState } from 'react'
+import { PageHeader } from '@/components/PageHeader'
+import { ConversationList } from '@/components/communications/ConversationList'
+import { MessageThread } from '@/components/communications/MessageThread'
+import { UserInfoPanel } from '@/components/communications/UserInfoPanel'
+import { useUser } from '@/components/UserProvider'
+import { Conversation, UserProfile } from '@/lib/supabase/types'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Mail, Search } from 'lucide-react'
-import { Input } from '@/components/ui/Input'
+import { PlusCircle } from 'lucide-react'
 
 export default function CommunicationsPage() {
+  const { user } = useUser()
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
+  
+  // When selecting a conversation, update both the active conversation and selected user
+  const handleSelectConversation = (conversation: Conversation, participant: UserProfile | null) => {
+    setActiveConversation(conversation)
+    setSelectedUser(participant)
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold">Sign in required</h2>
+          <p className="text-muted-foreground">You need to be logged in to access communications</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      <PageHeader
-        heading="Communications"
-        text="Manage client messages and notifications"
-      >
-        <Button>
-          <Mail className="mr-2 h-4 w-4" />
-          Compose
-        </Button>
-      </PageHeader>
-
-      <div className="flex gap-4">
-        {/* Filters */}
-        <Card className="w-64 p-4">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium">Filters</h3>
-              <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  <span className="h-2 w-2 rounded-full bg-primary mr-2" />
-                  Inbox
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <span className="h-2 w-2 rounded-full bg-yellow-400 mr-2" />
-                  Pending
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <span className="h-2 w-2 rounded-full bg-green-500 mr-2" />
-                  Resolved
-                </Button>
-              </div>
+    <div className="space-y-4">
+      <PageHeader 
+        title="Communications" 
+        description="Chat with clients and team members"
+        actions={
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            New Conversation
+          </Button>
+        }
+      />
+      
+      <div className="grid grid-cols-12 gap-4 h-[calc(100vh-200px)]">
+        {/* Conversation List */}
+        <div className="col-span-3 border rounded-md overflow-hidden bg-card">
+          <ConversationList 
+            userId={user.id}
+            onSelectConversation={handleSelectConversation}
+            activeConversationId={activeConversation?.id}
+          />
+        </div>
+        
+        {/* Message Thread */}
+        <div className="col-span-6 border rounded-md overflow-hidden bg-card">
+          {activeConversation ? (
+            <MessageThread 
+              conversationId={activeConversation.id}
+              userId={user.id}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-muted-foreground">
+              Select a conversation to start chatting
             </div>
-          </div>
-        </Card>
-
-        {/* Messages */}
-        <Card className="flex-1 p-6">
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search messages..."
-                className="pl-9"
-              />
+          )}
+        </div>
+        
+        {/* User Details */}
+        <div className="col-span-3 border rounded-md overflow-hidden bg-card">
+          {selectedUser ? (
+            <UserInfoPanel userId={selectedUser.id} />
+          ) : (
+            <div className="flex h-full items-center justify-center text-muted-foreground">
+              Select a conversation to view details
             </div>
-          </div>
-          <div className="space-y-2">
-            {/* Message items */}
-            <div className="flex items-center gap-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
-              <div className="h-10 w-10 rounded-full bg-muted" />
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Sarah Johnson</h4>
-                  <span className="text-xs text-muted-foreground">2h ago</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Loan Application Update</p>
-                <p className="text-sm line-clamp-1">Hi, I wanted to check on the status of my loan application...</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
-              <div className="h-10 w-10 rounded-full bg-muted" />
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Michael Chen</h4>
-                  <span className="text-xs text-muted-foreground">5h ago</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Document Request</p>
-                <p className="text-sm line-clamp-1">Please find attached the requested documents for my application...</p>
-              </div>
-            </div>
-
-            {/* Add more message items as needed */}
-          </div>
-        </Card>
+          )}
+        </div>
       </div>
     </div>
   )
