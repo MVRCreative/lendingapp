@@ -3,339 +3,212 @@
 ## Technology Stack
 
 ### Frontend
-- **Framework**: Next.js 14
-  - App Router
-  - React Server Components
-  - Server Actions
-  - Streaming SSR
-  - Route Handlers
+1. Next.js 14
+   - App Router
+   - Server Components
+   - Client Components
+   - Route Groups
+   - Parallel Routes
 
-- **State Management**
-  - React Hooks
-  - Context API
-  - Server Components
-  - Supabase Real-time
+2. React
+   - Server Components
+   - Hooks
+   - Context API
+   - Suspense
 
-- **UI Components**
-  - Tailwind CSS
-  - Radix UI
-  - Framer Motion
-  - React Hook Form
-  - Zod validation
+3. TypeScript
+   - Strict Mode
+   - Type Safety
+   - Interface Definitions
+   - Utility Types
 
-### Backend (Supabase)
-- **Database**
-  - PostgreSQL 15
-  - PostGIS extensions
-  - Row Level Security
-  - Database Functions
-  - Real-time subscriptions
+4. Styling
+   - Tailwind CSS
+   - CSS Modules
+   - CSS Variables
+   - Theme Tokens
+   - Dark Mode Support
 
-- **Authentication**
-  - Supabase Auth
-  - JWT tokens
-  - OAuth providers
-  - Magic links
-  - Role-based access
+### Backend
+1. Supabase
+   - PostgreSQL Database
+   - Row Level Security
+   - Real-time Subscriptions
+   - Edge Functions
+   - Storage
 
-- **Edge Functions**
-  - Deno runtime
-  - TypeScript support
-  - Edge deployment
-  - Serverless execution
-
-- **Storage**
-  - S3-compatible
-  - CDN delivery
-  - Access controls
-  - Image transformations
+2. Authentication
+   - Supabase Auth
+   - JWT Tokens
+   - Role-based Access
+   - Session Management
 
 ### Development Tools
-- **IDE/Editor**
-  - VS Code
-  - ESLint
-  - Prettier
-  - TypeScript
+1. Package Management
+   - pnpm Workspaces
+   - Monorepo Structure
+   - Dependency Management
+   - Version Control
 
-- **Version Control**
-  - Git
-  - GitHub
-  - Conventional commits
-  - Branch protection
+2. Code Quality
+   - ESLint
+   - Prettier
+   - TypeScript
+   - Husky
+   - lint-staged
 
-- **Package Management**
-  - pnpm
-  - Workspace support
-  - Lock file
-  - Dependency audit
+3. Testing
+   - Jest
+   - React Testing Library
+   - Cypress
+   - Playwright
 
-### Testing Tools
-- **Unit Testing**
-  - Jest
-  - React Testing Library
-  - MSW for mocking
-  - Test coverage
+## Implementation Details
 
-- **E2E Testing**
-  - Cypress
-  - Playwright
-  - Screenshot testing
-  - Network mocking
+### Component Architecture
+1. Table System
+   ```typescript
+   interface TableProps<T> {
+     data: T[]
+     columns: Column<T>[]
+     filters: FilterConfig[]
+     sorting: SortConfig
+     onFilter: (filters: Filter[]) => void
+     onSort: (sort: Sort) => void
+   }
+   ```
 
-- **Performance Testing**
-  - Lighthouse CI
-  - Web Vitals
-  - Performance budgets
-  - Load testing
+2. Filter System
+   ```typescript
+   interface FilterConfig {
+     field: string
+     type: 'text' | 'select' | 'date'
+     options?: Option[]
+     placeholder?: string
+   }
+   ```
 
-### Monitoring
-- **Error Tracking**
-  - Sentry
-  - Error boundaries
-  - Source maps
-  - Release tracking
+3. Theme System
+   ```css
+   :root {
+     --primary: 162.48 0.17 69.6%;
+     --background: 0 0% 100%;
+     --foreground: 0 0% 3.9%;
+     /* ... other tokens */
+   }
+   ```
 
-- **Analytics**
-  - Vercel Analytics
-  - Custom events
-  - User journeys
-  - Performance metrics
+### Data Flow
+1. Client-side
+   - React Query for data fetching
+   - Context for global state
+   - Local state for UI
+   - URL state for filters
 
-- **Logging**
-  - Supabase logs
-  - Edge Function logs
-  - Application logs
-  - Audit trails
+2. Server-side
+   - API Routes
+   - Database Queries
+   - Real-time Subscriptions
+   - Edge Functions
+
+### Security Measures
+1. Authentication
+   - JWT validation
+   - Role-based access
+   - Session management
+   - Secure cookies
+
+2. Data Protection
+   - Row Level Security
+   - Input validation
+   - SQL injection prevention
+   - XSS protection
 
 ## Development Setup
 
-### Local Environment
+### Prerequisites
+1. Node.js 18+
+2. pnpm 8+
+3. Supabase CLI
+4. Git
+
+### Environment Variables
 ```bash
-# Required tools
-node >= 18.0.0
-pnpm >= 8.0.0
-git >= 2.0.0
-supabase cli >= 1.0.0
-
-# Environment variables
-NEXT_PUBLIC_SUPABASE_URL=your_project_url
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# Development database
-supabase start
-supabase db push
-
-# Development server
-pnpm dev
+DATABASE_URL=your_direct_connection
 ```
 
-### Project Structure
-```
-lendingapp/
-├── app/
-│   ├── (auth)/
-│   │   ├── login/
-│   │   └── register/
-│   ├── (dashboard)/
-│   │   ├── loans/
-│   │   └── settings/
-│   ├── api/
-│   │   └── edge/
-│   └── layout.tsx
-├── components/
-│   ├── ui/
-│   └── forms/
-├── lib/
-│   ├── supabase/
-│   └── utils/
-├── styles/
-│   └── globals.css
-└── supabase/
-    ├── functions/
-    ├── migrations/
-    └── seed.sql
-```
+### Local Development
+1. Install dependencies
+   ```bash
+   pnpm install
+   ```
 
-### Database Schema
-```sql
--- Core tables
-create table public.users (
-  id uuid references auth.users not null primary key,
-  email text not null unique,
-  full_name text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
+2. Start development server
+   ```bash
+   pnpm dev
+   ```
 
-create table public.loans (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references public.users not null,
-  amount decimal not null,
-  term integer not null,
-  status text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
+3. Run tests
+   ```bash
+   pnpm test
+   ```
 
--- RLS Policies
-alter table public.users enable row level security;
-alter table public.loans enable row level security;
+## Deployment
 
-create policy "Users can read own profile"
-  on users for select
-  using (auth.uid() = id);
+### Production
+1. Build process
+   ```bash
+   pnpm build
+   ```
 
-create policy "Users can read own loans"
-  on loans for select
-  using (auth.uid() = user_id);
-```
+2. Environment configuration
+   - Vercel
+   - Supabase
+   - Edge Functions
 
-## Technical Constraints
+3. Monitoring
+   - Error tracking
+   - Performance metrics
+   - Usage analytics
 
-### Performance
-- First Contentful Paint < 1.5s
-- Time to Interactive < 3.5s
-- Largest Contentful Paint < 2.5s
-- Cumulative Layout Shift < 0.1
-- First Input Delay < 100ms
+## Technical Decisions
 
-### Security
-- HTTPS only
-- CSP headers
-- CORS policies
-- Rate limiting
-- Input validation
-- Output sanitization
-- Secure sessions
-- Audit logging
+### Why Next.js App Router?
+1. Better SEO capabilities
+2. Improved performance
+3. Built-in optimizations
+4. Type-safe routing
 
-### Scalability
-- Edge Function limits
-  - Execution time: 50s
-  - Memory: 150MB
-  - Payload size: 6MB
+### Why Supabase?
+1. PostgreSQL foundation
+2. Real-time capabilities
+3. Built-in authentication
+4. Edge Functions support
 
-- Database limits
-  - Connections: Based on plan
-  - Storage: Based on plan
-  - Row size: 1GB
-  - Query timeout: 30s
+### Why TypeScript?
+1. Type safety
+2. Better IDE support
+3. Reduced runtime errors
+4. Enhanced maintainability
 
-- Storage limits
-  - File size: 50MB
-  - Bucket size: Based on plan
-  - Upload timeout: 30s
+## Current Focus
 
-### Browser Support
-- Chrome >= 87
-- Firefox >= 78
-- Safari >= 14
-- Edge >= 88
-- iOS >= 14
-- Android >= 87
+### Optimization
+1. Table performance
+2. Filter system
+3. Real-time updates
+4. Bundle size
 
-## Dependencies
+### Integration
+1. Supabase setup
+2. API endpoints
+3. Authentication flow
+4. Data migration
 
-### Core Dependencies
-```json
-{
-  "dependencies": {
-    "@supabase/auth-helpers-nextjs": "^0.8.0",
-    "@supabase/supabase-js": "^2.38.0",
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "typescript": "^5.2.0"
-  }
-}
-```
-
-### Development Dependencies
-```json
-{
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.2.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
-    "eslint-config-next": "^14.0.0",
-    "prettier": "^3.0.0",
-    "supabase": "^1.100.0"
-  }
-}
-```
-
-## Configuration
-
-### Next.js Config
-```typescript
-// next.config.js
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    serverActions: true,
-  },
-  images: {
-    domains: [
-      'your-project.supabase.co'
-    ]
-  }
-}
-
-module.exports = nextConfig
-```
-
-### TypeScript Config
-```json
-{
-  "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-}
-```
-
-### ESLint Config
-```json
-{
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
-  "root": true
-}
-```
-
-### Prettier Config
-```json
-{
-  "semi": false,
-  "singleQuote": true,
-  "tabWidth": 2,
-  "trailingComma": "es5"
-}
-``` 
+### Enhancement
+1. Component system
+2. Theme tokens
+3. Accessibility
+4. Mobile support 

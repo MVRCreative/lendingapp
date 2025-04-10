@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { SidebarNav } from '@/components/dashboard/SidebarNav'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface DashboardLayoutProps {
   children: React.ReactNode

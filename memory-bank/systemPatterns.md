@@ -2,353 +2,353 @@
 
 ## Architecture Overview
 
-### Infrastructure
-```mermaid
-graph TD
-    Client[Next.js Client] --> Edge[Edge Functions]
-    Client --> Auth[Supabase Auth]
-    Client --> RT[Real-time API]
-    Client --> REST[REST API]
-    
-    Edge --> DB[PostgreSQL]
-    Auth --> DB
-    RT --> DB
-    REST --> DB
-    
-    DB --> RLS[Row Level Security]
+### Application Structure
+```
+lendingapp/
+├── apps/
+│   ├── web/                 # Next.js frontend
+│   │   ├── src/
+│   │   │   ├── app/        # App Router pages
+│   │   │   ├── components/ # React components
+│   │   │   ├── lib/       # Utilities and helpers
+│   │   │   └── styles/    # Global styles
+│   │   └── public/         # Static assets
+│   └── api/                # API routes
+├── packages/
+│   ├── shared/             # Shared utilities
+│   └── ui/                 # UI component library
+└── supabase/              # Supabase configuration
+    ├── functions/         # Edge Functions
+    ├── migrations/        # Database migrations
+    └── seed/             # Seed data
 ```
 
-### Core Components
+### Design Patterns
 
-1. **Frontend Layer**
-   - Next.js 14 App Router
-   - Server and Client Components
-   - Supabase Client SDK
-   - Real-time subscriptions
-   - Progressive enhancement
-
-2. **Backend Layer**
-   - Supabase Edge Functions
-   - PostgreSQL database
-   - Row Level Security
-   - Real-time API
-   - Storage service
-
-3. **Authentication**
-   - Supabase Auth
-   - Multiple providers
-   - JWT handling
-   - Session management
-   - Role-based access
-
-4. **Data Layer**
-   - PostgreSQL with RLS
-   - Real-time subscriptions
-   - Optimized queries
-   - Cache management
-   - Data validation
-
-## Design Patterns
-
-### Frontend Patterns
-
-1. **Component Architecture**
+1. Component Patterns
    ```typescript
-   // Server Component
-   export default async function LoanList() {
-     const supabase = createServerClient()
-     const { data } = await supabase
-       .from('loans')
-       .select()
-     return <LoanListClient loans={data} />
-   }
-
-   // Client Component
-   'use client'
-   export function LoanListClient({ loans }) {
-     const [data, setData] = useState(loans)
-     // Real-time subscription setup
-     return <div>{/* Render loans */}</div>
-   }
-   ```
-
-2. **Data Fetching**
-   ```typescript
-   // Server-side data fetching
-   async function getData() {
-     const supabase = createServerClient()
-     return await supabase
-       .from('table')
-       .select()
-       .single()
-   }
-
-   // Client-side real-time
-   function useRealtimeData() {
-     const supabase = createClientClient()
-     useEffect(() => {
-       const channel = supabase
-         .channel('table_changes')
-         .on('postgres_changes', {}, handler)
-         .subscribe()
-       return () => void supabase.removeChannel(channel)
-     }, [])
-   }
-   ```
-
-3. **Error Handling**
-   ```typescript
-   try {
-     const { data, error } = await supabase.from('table').select()
-     if (error) throw error
-     return data
-   } catch (error) {
-     captureError(error)
-     return null
-   }
-   ```
-
-### Backend Patterns
-
-1. **Edge Functions**
-   ```typescript
-   // Edge function handler
-   export const handler = async (req: Request) => {
-     const { data, error } = await supabase
-       .from('table')
-       .select()
-     
-     return new Response(
-       JSON.stringify({ data, error }),
-       { headers: { 'Content-Type': 'application/json' } }
-     )
-   }
-   ```
-
-2. **Row Level Security**
-   ```sql
-   -- Example RLS policy
-   CREATE POLICY "Users can only view their own loans"
-   ON loans
-   FOR SELECT
-   USING (auth.uid() = user_id);
-   ```
-
-3. **Database Functions**
-   ```sql
-   CREATE FUNCTION calculate_loan_interest()
-   RETURNS trigger AS $$
-   BEGIN
-     NEW.interest = NEW.principal * NEW.rate;
-     RETURN NEW;
-   END;
-   $$ LANGUAGE plpgsql;
-   ```
-
-### Security Patterns
-
-1. **Authentication**
-   ```typescript
-   const { data: { session }, error } = await supabase.auth.getSession()
-   if (error) handleAuthError(error)
-   if (!session) redirect('/login')
-   ```
-
-2. **Authorization**
-   ```typescript
-   const { data, error } = await supabase
-     .from('loans')
-     .select()
-     .eq('user_id', session.user.id)
-   ```
-
-3. **Data Validation**
-   ```typescript
-   interface LoanInput {
-     amount: number
-     term: number
-     rate: number
-   }
-
-   function validateLoan(input: LoanInput): boolean {
-     return (
-       input.amount > 0 &&
-       input.term > 0 &&
-       input.rate >= 0
-     )
-   }
-   ```
-
-## Integration Patterns
-
-1. **Payment Processing**
-   ```typescript
-   async function processPayment(amount: number) {
-     const { data: intent, error } = await supabase
-       .functions.invoke('create-payment', {
-         body: { amount }
-       })
-     if (error) throw error
-     return intent
-   }
-   ```
-
-2. **Document Processing**
-   ```typescript
-   async function uploadDocument(file: File) {
-     const { data, error } = await supabase
-       .storage
-       .from('documents')
-       .upload(`${uuid()}.pdf`, file)
-     if (error) throw error
-     return data
-   }
-   ```
-
-3. **Notification System**
-   ```typescript
-   async function sendNotification(userId: string, message: string) {
-     const { error } = await supabase
-       .from('notifications')
-       .insert({ user_id: userId, message })
-     if (error) throw error
-   }
-   ```
-
-## Performance Patterns
-
-1. **Caching**
-   ```typescript
-   const CACHE_TIME = 60 * 5 // 5 minutes
+   // Compound Components
+   const Table = ({ children }) => <table>{children}</table>
+   Table.Header = ({ children }) => <thead>{children}</thead>
+   Table.Body = ({ children }) => <tbody>{children}</tbody>
+   Table.Row = ({ children }) => <tr>{children}</tr>
    
-   async function getCachedData(key: string) {
-     const cached = await redis.get(key)
-     if (cached) return JSON.parse(cached)
-     
-     const { data } = await supabase.from('table').select()
-     await redis.setex(key, CACHE_TIME, JSON.stringify(data))
-     return data
+   // Higher Order Components
+   const withAuth = (Component) => {
+     return (props) => {
+       const { user } = useAuth()
+       if (!user) return <Redirect to="/login" />
+       return <Component {...props} user={user} />
+     }
+   }
+   
+   // Custom Hooks
+   const useDebounce = (value, delay) => {
+     const [debouncedValue, setDebouncedValue] = useState(value)
+     useEffect(() => {
+       const timer = setTimeout(() => setDebouncedValue(value), delay)
+       return () => clearTimeout(timer)
+     }, [value, delay])
+     return debouncedValue
    }
    ```
 
-2. **Query Optimization**
+2. State Management
    ```typescript
-   // Optimized query with specific columns and joins
-   const { data } = await supabase
-     .from('loans')
-     .select(`
-       id,
-       amount,
-       user:user_id (
-         name,
-         email
-       )
-     `)
-     .order('created_at')
-     .limit(10)
-   ```
-
-3. **Real-time Optimization**
-   ```typescript
-   // Specific channel subscription
-   const channel = supabase
-     .channel('loans')
-     .on('postgres_changes', {
-       event: 'UPDATE',
-       schema: 'public',
-       table: 'loans',
-       filter: `id=eq.${loanId}`
-     }, handler)
-     .subscribe()
-   ```
-
-## Error Handling Patterns
-
-1. **Global Error Boundary**
-   ```typescript
-   export default function GlobalError({
-     error,
-     reset,
-   }: {
-     error: Error & { digest?: string }
-     reset: () => void
-   }) {
+   // Context Provider
+   export const AppContext = createContext<AppContextType>({})
+   
+   export const AppProvider = ({ children }) => {
+     const [state, dispatch] = useReducer(reducer, initialState)
      return (
-       <div>
-         <h2>Something went wrong!</h2>
-         <button onClick={() => reset()}>Try again</button>
-       </div>
+       <AppContext.Provider value={{ state, dispatch }}>
+         {children}
+       </AppContext.Provider>
      )
    }
-   ```
-
-2. **API Error Handling**
-   ```typescript
-   type ApiError = {
-     code: string
-     message: string
-     details?: unknown
-   }
-
-   function handleApiError(error: ApiError) {
-     logger.error(error)
-     throw new Error(`API Error: ${error.message}`)
-   }
-   ```
-
-3. **Database Error Recovery**
-   ```typescript
-   async function retryOperation<T>(
-     operation: () => Promise<T>,
-     retries = 3
-   ): Promise<T> {
-     try {
-       return await operation()
-     } catch (error) {
-       if (retries > 0) {
-         await delay(1000)
-         return retryOperation(operation, retries - 1)
-       }
-       throw error
+   
+   // Actions and Reducers
+   type Action = 
+     | { type: 'SET_USER'; payload: User }
+     | { type: 'SET_THEME'; payload: Theme }
+   
+   const reducer = (state: State, action: Action): State => {
+     switch (action.type) {
+       case 'SET_USER':
+         return { ...state, user: action.payload }
+       case 'SET_THEME':
+         return { ...state, theme: action.payload }
+       default:
+         return state
      }
    }
    ```
 
-## Testing Patterns
-
-1. **Unit Testing**
+3. Data Fetching
    ```typescript
-   describe('Loan Calculation', () => {
-     it('calculates correct interest', () => {
-       const result = calculateInterest(1000, 0.05)
-       expect(result).toBe(50)
+   // API Client
+   const api = {
+     get: async <T>(url: string): Promise<T> => {
+       const response = await fetch(url)
+       if (!response.ok) throw new Error('Network error')
+       return response.json()
+     },
+     post: async <T>(url: string, data: any): Promise<T> => {
+       const response = await fetch(url, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(data)
+       })
+       if (!response.ok) throw new Error('Network error')
+       return response.json()
+     }
+   }
+   
+   // Data Hooks
+   const useLoans = (userId: string) => {
+     const { data, error } = useSWR(
+       `/api/loans?userId=${userId}`,
+       api.get
+     )
+     return {
+       loans: data,
+       isLoading: !error && !data,
+       isError: error
+     }
+   }
+   ```
+
+### Routing Patterns
+
+1. Route Groups
+   ```typescript
+   // (auth) group
+   app/(auth)/login/page.tsx
+   app/(auth)/register/page.tsx
+   app/(auth)/layout.tsx
+   
+   // (dashboard) group
+   app/(dashboard)/page.tsx
+   app/(dashboard)/loans/page.tsx
+   app/(dashboard)/clients/page.tsx
+   app/(dashboard)/layout.tsx
+   ```
+
+2. Parallel Routes
+   ```typescript
+   // @modal parallel route
+   app/@modal/default.tsx
+   app/@modal/loading.tsx
+   app/@modal/error.tsx
+   
+   // @sidebar parallel route
+   app/@sidebar/default.tsx
+   app/@sidebar/loading.tsx
+   ```
+
+3. Intercepting Routes
+   ```typescript
+   // (..)photo intercepting route
+   app/photos/[id]/page.tsx
+   app/photos/[id]/(..)photo/page.tsx
+   ```
+
+### Database Patterns
+
+1. Schema Design
+   ```sql
+   -- Base tables
+   create table users (
+     id uuid primary key,
+     email text unique,
+     name text,
+     created_at timestamptz default now()
+   );
+   
+   create table loans (
+     id uuid primary key,
+     user_id uuid references users,
+     amount decimal,
+     status text,
+     created_at timestamptz default now()
+   );
+   
+   -- Junction tables
+   create table loan_documents (
+     loan_id uuid references loans,
+     document_id uuid references documents,
+     primary key (loan_id, document_id)
+   );
+   ```
+
+2. Row Level Security
+   ```sql
+   -- Enable RLS
+   alter table loans enable row level security;
+   
+   -- Define policies
+   create policy "Users can view own loans"
+     on loans for select
+     using (auth.uid() = user_id);
+   
+   create policy "Users can create own loans"
+     on loans for insert
+     with check (auth.uid() = user_id);
+   ```
+
+3. Database Functions
+   ```sql
+   -- Calculate loan metrics
+   create function calculate_loan_metrics(loan_id uuid)
+   returns json
+   language plpgsql
+   security definer
+   as $$
+   declare
+     result json;
+   begin
+     select json_build_object(
+       'total_paid', sum(amount),
+       'remaining', l.amount - sum(p.amount)
+     )
+     into result
+     from loans l
+     left join payments p on p.loan_id = l.id
+     where l.id = loan_id
+     group by l.id, l.amount;
+     
+     return result;
+   end;
+   $$;
+   ```
+
+### Security Patterns
+
+1. Authentication
+   ```typescript
+   // Auth middleware
+   export const middleware = async (req: NextRequest) => {
+     const token = req.cookies.get('token')
+     if (!token) {
+       return NextResponse.redirect('/login')
+     }
+     try {
+       await verifyToken(token)
+       return NextResponse.next()
+     } catch {
+       return NextResponse.redirect('/login')
+     }
+   }
+   
+   // Protected routes
+   export const config = {
+     matcher: ['/dashboard/:path*', '/api/:path*']
+   }
+   ```
+
+2. Input Validation
+   ```typescript
+   // Zod schema
+   const LoanSchema = z.object({
+     amount: z.number().min(1000).max(50000),
+     term: z.number().min(6).max(60),
+     purpose: z.string().min(10).max(200)
+   })
+   
+   // Validation middleware
+   const validate = (schema: ZodSchema) => {
+     return async (req: NextRequest) => {
+       try {
+         await schema.parseAsync(req.body)
+         return NextResponse.next()
+       } catch (error) {
+         return NextResponse.json(
+           { error: 'Validation failed' },
+           { status: 400 }
+         )
+       }
+     }
+   }
+   ```
+
+### Testing Patterns
+
+1. Component Testing
+   ```typescript
+   // Component test
+   describe('LoanCard', () => {
+     it('renders loan details correctly', () => {
+       const loan = {
+         id: '123',
+         amount: 5000,
+         term: 12
+       }
+       
+       render(<LoanCard loan={loan} />)
+       
+       expect(screen.getByText('$5,000')).toBeInTheDocument()
+       expect(screen.getByText('12 months')).toBeInTheDocument()
      })
    })
    ```
 
-2. **Integration Testing**
+2. Integration Testing
    ```typescript
-   describe('Loan API', () => {
-     it('creates a loan', async () => {
-       const { data, error } = await supabase
-         .from('loans')
-         .insert({ amount: 1000 })
-         .select()
-       expect(error).toBeNull()
-       expect(data).toBeDefined()
+   // API route test
+   describe('POST /api/loans', () => {
+     it('creates a new loan', async () => {
+       const loan = {
+         amount: 5000,
+         term: 12,
+         purpose: 'Home renovation'
+       }
+       
+       const response = await fetch('/api/loans', {
+         method: 'POST',
+         body: JSON.stringify(loan)
+       })
+       
+       expect(response.status).toBe(201)
+       const data = await response.json()
+       expect(data.id).toBeDefined()
      })
    })
    ```
 
-3. **E2E Testing**
+3. E2E Testing
    ```typescript
-   describe('Loan Creation', () => {
-     it('creates a loan through UI', () => {
+   // Cypress test
+   describe('Loan Application', () => {
+     it('completes loan application flow', () => {
        cy.login()
-       cy.visit('/loans/new')
-       cy.fillLoanForm()
-       cy.contains('Submit').click()
-       cy.url().should('include', '/loans/')
+       cy.visit('/apply')
+       cy.fillLoanForm({
+         amount: 5000,
+         term: 12,
+         purpose: 'Home renovation'
+       })
+       cy.get('[data-testid="submit"]').click()
+       cy.url().should('include', '/dashboard')
      })
    })
-   ``` 
+   ```
+
+## Current Implementation Focus
+
+### Performance Optimization
+1. Static page generation
+2. Dynamic imports
+3. Image optimization
+4. API route caching
+
+### Accessibility Improvements
+1. ARIA labels
+2. Keyboard navigation
+3. Color contrast
+4. Screen reader support
+
+### Mobile Responsiveness
+1. Fluid typography
+2. Responsive layouts
+3. Touch interactions
+4. Mobile-first design 
