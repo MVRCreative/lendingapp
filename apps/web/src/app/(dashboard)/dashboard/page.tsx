@@ -99,13 +99,41 @@ const recentClients = [
 export default async function DashboardPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  
+  console.log('Dashboard: User data:', { 
+    id: user?.id,
+    email: user?.email,
+    metadata: user?.user_metadata 
+  })
+  
+  // Fetch the user's profile to get their name
+  let userName = 'there'
+  if (user) {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .single()
+    
+    console.log('Dashboard: Profile data:', { profile, error })
+      
+    if (profile && profile.full_name) {
+      // Get just the first name
+      userName = profile.full_name.split(' ')[0]
+      console.log('Dashboard: Using name from profile:', userName)
+    } else if (user.user_metadata?.full_name) {
+      // Fallback to user metadata if profile doesn't have a name
+      userName = user.user_metadata.full_name.split(' ')[0]
+      console.log('Dashboard: Using name from metadata:', userName)
+    }
+  }
 
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back{user?.email ? `, ${user.email}` : ''}!
+          Welcome back, {userName}!
         </h1>
         <p className="text-muted-foreground">
           Here's what's happening with your lending portfolio today.

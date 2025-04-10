@@ -8,18 +8,29 @@ export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
+    console.log('ThemeToggle: initializing')
     // Check localStorage and system preference on mount
     const savedTheme = localStorage.getItem('theme')
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
-    setIsDark(savedTheme === 'dark' || (!savedTheme && systemPrefersDark))
+    // Default to light theme if no preference is saved
+    const shouldBeDark = savedTheme === 'dark' || (savedTheme === null && systemPrefersDark)
+    console.log('ThemeToggle: initial state -', { savedTheme, systemPrefersDark, shouldBeDark })
+    
+    setIsDark(shouldBeDark)
     
     // Apply theme class immediately on mount
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark' || (!savedTheme && systemPrefersDark))
+    document.documentElement.classList.toggle('dark', shouldBeDark)
+    
+    // If no theme is set in localStorage, default to light
+    if (savedTheme === null) {
+      localStorage.setItem('theme', shouldBeDark ? 'dark' : 'light')
+    }
   }, [])
 
   const toggleTheme = () => {
     const newTheme = !isDark
+    console.log('ThemeToggle: toggling to', newTheme ? 'dark' : 'light')
     setIsDark(newTheme)
     document.documentElement.classList.toggle('dark', newTheme)
     localStorage.setItem('theme', newTheme ? 'dark' : 'light')
