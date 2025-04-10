@@ -1,6 +1,15 @@
 'use client'
 
-import { LayoutDashboard, CreditCard, Wallet, PiggyBank, Users } from 'lucide-react'
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  Mail,
+  FolderOpen,
+  BarChart3,
+  History,
+  Settings
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -16,10 +25,13 @@ export function SidebarNav({ userEmail, children }: SidebarNavProps) {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Lend', href: '/dashboard/lend', icon: CreditCard },
-    { name: 'Borrow', href: '/dashboard/borrow', icon: PiggyBank },
-    { name: 'My Loans', href: '/dashboard/loans', icon: Wallet },
-    { name: 'Referrals', href: '/dashboard/referrals', icon: Users },
+    { name: 'Loans', href: '/loans', icon: FileText },
+    { name: 'Clients', href: '/clients', icon: Users },
+    { name: 'Communications', href: '/communications', icon: Mail },
+    { name: 'Documents', href: '/documents', icon: FolderOpen },
+    { name: 'Reports', href: '/reports', icon: BarChart3 },
+    { name: 'Activity Log', href: '/activity', icon: History },
+    { name: 'Settings', href: '/settings', icon: Settings }
   ]
 
   return (
@@ -35,13 +47,20 @@ export function SidebarNav({ userEmail, children }: SidebarNavProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground',
-                'hover:bg-muted hover:text-foreground transition-colors',
-                pathname === item.href && 'bg-primary text-primary-foreground'
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'hover:bg-muted/50 hover:text-foreground',
+                pathname === item.href
+                  ? 'bg-muted/50 text-foreground'
+                  : 'text-muted-foreground'
               )}
             >
-              <item.icon className="h-4 w-4" />
-              {item.name}
+              <item.icon className={cn(
+                'h-4 w-4',
+                pathname === item.href
+                  ? 'text-primary'
+                  : 'text-muted-foreground'
+              )} />
+              <span>{item.name}</span>
             </Link>
           ))}
         </nav>
@@ -51,7 +70,9 @@ export function SidebarNav({ userEmail, children }: SidebarNavProps) {
       <div className="flex flex-1 flex-col">
         {/* Header */}
         <header className="flex h-16 items-center justify-between border-b border-border bg-card px-6">
-          <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+          <h1 className="text-lg font-semibold text-foreground capitalize">
+            {pathname === '/' ? 'Dashboard' : pathname.split('/')[1]}
+          </h1>
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <span className="text-sm text-muted-foreground">{userEmail}</span>

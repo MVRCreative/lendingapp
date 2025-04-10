@@ -113,81 +113,105 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-emerald-100 dark:bg-emerald-900/20 p-2.5">
-              <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <Card className="p-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Total Loan Volume</p>
+              <div className="space-y-1">
+                <h3 className="text-4xl font-light">$2.4M</h3>
+                <div className="inline-flex items-center rounded-full bg-rose-50 dark:bg-rose-500/20 px-2 py-1">
+                  <span className="text-xs font-medium text-rose-600 dark:text-rose-400">+12%</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">$2.4M</h3>
-              <p className="text-sm font-medium text-muted-foreground">Total Loan Volume</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-blue-100 dark:bg-blue-900/20 p-2.5">
-              <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">156</h3>
-              <p className="text-sm font-medium text-muted-foreground">Active Loans</p>
+            <div className="rounded-full p-2 hover:bg-muted/50 cursor-pointer">
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </Card>
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-2.5">
-              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+
+        <Card className="p-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Active Loans</p>
+              <div className="space-y-1">
+                <h3 className="text-4xl font-light">156</h3>
+                <div className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-1">
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">+8%</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">892</h3>
-              <p className="text-sm font-medium text-muted-foreground">Repaid Loans</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-red-100 dark:bg-red-900/20 p-2.5">
-              <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">23</h3>
-              <p className="text-sm font-medium text-muted-foreground">Defaulted Loans</p>
+            <div className="rounded-full p-2 hover:bg-muted/50 cursor-pointer">
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </Card>
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-indigo-100 dark:bg-indigo-900/20 p-2.5">
-              <TrendingUp className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+
+        <Card className="p-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Repaid Loans</p>
+              <div className="space-y-1">
+                <h3 className="text-4xl font-light">892</h3>
+                <div className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-1">
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">+15%</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">$48,592</h3>
-              <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-purple-100 dark:bg-purple-900/20 p-2.5">
-              <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">1,234</h3>
-              <p className="text-sm font-medium text-muted-foreground">Active Borrowers</p>
+            <div className="rounded-full p-2 hover:bg-muted/50 cursor-pointer">
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </Card>
-        <Card className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-cyan-100 dark:bg-cyan-900/20 p-2.5">
-              <MessageSquare className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+
+        <Card className="p-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Monthly Revenue</p>
+              <div className="space-y-1">
+                <h3 className="text-4xl font-light">$48,592</h3>
+                <div className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-1">
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">+24%</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">328</h3>
-              <p className="text-sm font-medium text-muted-foreground">Total Messages</p>
+            <div className="rounded-full p-2 hover:bg-muted/50 cursor-pointer">
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Active Borrowers</p>
+              <div className="space-y-1">
+                <h3 className="text-4xl font-light">1,234</h3>
+                <div className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-1">
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">+18%</span>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-full p-2 hover:bg-muted/50 cursor-pointer">
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 relative">
+          <div className="flex justify-between items-start">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Defaulted Loans</p>
+              <div className="space-y-1">
+                <h3 className="text-4xl font-light">23</h3>
+                <div className="inline-flex items-center rounded-full bg-rose-50 dark:bg-rose-500/20 px-2 py-1">
+                  <span className="text-xs font-medium text-rose-600 dark:text-rose-400">+2%</span>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-full p-2 hover:bg-muted/50 cursor-pointer">
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </Card>
