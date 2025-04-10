@@ -39,6 +39,19 @@ export function SidebarNav({ children }: SidebarNavProps) {
     }
   }, [user, loading, pathname, router])
 
+  // Close the user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   // Show loading state while checking auth
   if (loading) {
     return (
@@ -66,19 +79,6 @@ export function SidebarNav({ children }: SidebarNavProps) {
     { name: 'Activity Log', href: '/activity', icon: History },
     { name: 'Settings', href: '/settings', icon: Settings }
   ]
-
-  // Close the user menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setUserMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   return (
     <div className="flex min-h-screen bg-background">
